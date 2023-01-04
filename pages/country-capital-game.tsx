@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 type CountryList = { [country: string]: string };
 
 export default function CountryCapitalGame(props: { data: CountryList }) {
-  const countries = props.data as CountryList;
+  const countries = props.data ?? {} as CountryList;
   const entries = Object.entries<string>(countries).flat();
   entries.sort(() => 0.5 - Math.random());
 
