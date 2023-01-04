@@ -37,7 +37,7 @@ export default function CountryCapitalGame(props: { data: CountryList }) {
     }
   }
 
-  return (
+  return buttons.length && (
     <div>
       {(buttons ?? []).map((btn) => {
         const style = {
@@ -55,5 +55,7 @@ export default function CountryCapitalGame(props: { data: CountryList }) {
         );
       })}
     </div>
+  ) || (
+    <p>Congratulations!</p>
   );
 }
