@@ -1,79 +1,59 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 
-// You can also use class components
-export default class CountryCapitalGame extends React.Component {
-  entries: [string, string][];
-  buttons: string[];
-  selectionStack: string[];
-  errorStack: string[];
+type CountryList = { [country: string]: string };
 
-  constructor(props) {
-    super(props);
+export default function CountryCapitalGame(props: { data: CountryList }) {
+  const countries = props.data as CountryList;
+  const entries = Object.entries<string>(countries).flat();
+  entries.sort(() => 0.5 - Math.random());
 
-    this.entries = Object.entries(props.data);
-    this.buttons = this.entries.flat();
-    this.buttons.sort(() => 0.5 - Math.random());
+  const [buttons, setButtons] = useState<string[]>(entries);
 
-    this.selectionStack = [];
-    this.errorStack = [];
-  }
+  const [status, setStatus] = useState<"initial" | "error">("initial");
+  const [selectionStack, setSelectionStack] = useState<string[]>([]);
 
-  match(selection) {
-    for (const entryIx in this.entries) {
-      const entry = this.entries[entryIx];
-      let count = 0;
-
-      for (const selected of selection) {
-        if (!entry.includes(selected)) {
-          count++;
-        }
-      }
-
-      if (count === 2) {
-        return [true, entryIx];
-      }
-    }
-
-    return [false, -1];
-  }
-
-  clickButton(btn) {
-    if (!this.selectionStack.includes(btn)) {
-      this.selectionStack.push(btn);
-    }
-
-    if (this.selectionStack.length === 2) {
-      const [matches, entryIndex] = this.match(this.selectionStack);
-      if (matches) {
-        this.entries.splice(entryIndex, 1);
+  useEffect(() => {
+    if (selectionStack.length === 2) {
+      if (match(selectionStack)) {
+        setButtons(buttons.filter((btn) => !selectionStack.includes(btn)));
       } else {
-        this.errorStack = this.selectionStack;
-        setTimeout(() => {
-          this.errorStack = this.selectionStack = [];
-        }, 500);
+        setStatus(() => "error");
       }
+
+      setTimeout(() => {
+        setStatus(() => "initial");
+        setSelectionStack(() => []);
+      }, 500);
+    }
+  });
+
+  function match([a, b]: string[]) {
+    return countries[a] === b || countries[b] === a;
+  }
+
+  function clickButton(btn: string) {
+    if (!selectionStack.includes(btn)) {
+      setSelectionStack((prev) => [...prev, btn]);
     }
   }
 
-  render() {
-    return (
-      <div>
-        {this.buttons.map((btn) => {
-          const style = {
-            backgroundColor: this.selectionStack.includes(btn)
-              ? "blue"
-              : this.errorStack.includes(btn)
+  return (
+    <div>
+      {(buttons ?? []).map((btn) => {
+        const style = {
+          backgroundColor: selectionStack.includes(btn)
+            ? status === "error"
               ? "red"
-              : "transparent",
-          };
-          
-          return (
-            <button style={style} onClick={() => this.clickButton(btn)}>
-              {btn}
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
+              : "blue"
+            : "transparent",
+        };
+
+        return (
+          <button style={style} onClick={() => clickButton(btn)}>
+            {btn}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
