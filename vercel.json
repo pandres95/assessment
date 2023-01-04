@@ -1,0 +1,9 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "name": "southworks-assessment",
+    "functions": {
+        "pages/buttons.tsx": {
+            "memory": 1024
+        }
+    }
+}
